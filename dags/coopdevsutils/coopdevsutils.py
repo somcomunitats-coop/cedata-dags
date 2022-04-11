@@ -48,5 +48,5 @@ def dataframetotable(table, bbdd, dataframe, schema="public"):
 
 
 def executequery(query, conn):
-    conn.execute(query)
+    conn.run(query)
 
