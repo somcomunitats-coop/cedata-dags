@@ -8,7 +8,7 @@ from conectabbdd import conecta
 
 
 def _conectafunc():
-    return conecta.connecta()
+    return conecta.connecta_sentilo()
 
 
 with DAG("Dag_carrega_bbdd_sentilo", start_date=datetime(2021, 1, 1), schedule_interval="@daily", catchup=False) as dag:
