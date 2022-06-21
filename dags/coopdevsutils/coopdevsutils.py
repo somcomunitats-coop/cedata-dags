@@ -1,18 +1,6 @@
-from projectsecrets.secrets import secrets  # quan es puja a pro
 import psycopg2
 import pandas as pd
 from sqlalchemy import create_engine
-
-
-def _getvalue(bbdd, key):
-    return secrets.bbdd[bbdd][key]
-
-
-def getconnection(bbdd):
-    return psycopg2.connect(host=_getvalue(bbdd, 'host'),
-                            user=_getvalue(bbdd, 'user'),
-                            password=_getvalue(bbdd, 'password'),
-                            dbname=_getvalue(bbdd, 'dbname'))
 
 
 def getconnectionparams(host, port,  user, password, dbname):
@@ -22,13 +10,6 @@ def getconnectionparams(host, port,  user, password, dbname):
 def getalchemyconnectionparams(engine, host, port,  user, password, dbname):
     return create_engine(
         ''+engine+'://' + user + ':' + password + '@' + host + ':' + str(port) + '/' + dbname + '')
-
-
-def getalchemyconnection(bbdd):
-    return create_engine(
-        ''+_getvalue(bbdd, 'engine')+'://' + _getvalue(bbdd, 'user') + ':' + _getvalue(bbdd, 'password') + '@'
-        + _getvalue(bbdd, 'host') + ':'
-        + _getvalue(bbdd, 'port') + '/'+_getvalue(bbdd, 'dbname')+'')
 
 
 def querytodataframe(query, columns, conn):

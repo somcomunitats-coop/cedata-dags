@@ -1,4 +1,4 @@
-from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery, getalchemyconnection
+from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery
 from airflow.hooks.base import BaseHook
 
 
