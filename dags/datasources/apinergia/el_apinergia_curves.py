@@ -13,7 +13,7 @@ from psycopg2 import extras
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 
-from ...somenergia_apinergia.apinergia import Apinergia, Authentication
+from somenergia_apinergia.apinergia import Apinergia, Authentication
 
 
 def config():
@@ -81,12 +81,20 @@ def el_curves(conraw, api, contractid, cch_type, start_date, end_date):
 
 def download_curves(contractid, cch_type, start_date, end_date):
     api = config()
-
-    connraw = BaseHook.get_connection('Rawdata').get_hook().get_sqlalchemy_engine()
-
-    with psycopg2.connect(connraw) as conn:
+    connraw = BaseHook.get_connection('Rawdata').get_hook().get_conn()
+    with connraw as conn:
         with conn.cursor() as curs:
-            el_curves(api, contractid, cch_type, start_date, end_date)
+            el_curves(curs, api, contractid, cch_type, start_date, end_date)
 
-    connraw.close()
 
+def get_last_date_contract(contractid):
+    api = config()
+    connraw = BaseHook.get_connection('Rawdata').get_hook().get_conn()
+    with connraw as conn:
+        with conn.cursor() as curs:
+            return curs.execute("select  coalesce(max(ts),'2022-06-01') as ts from curveregistry where contract='"
+                                + contractid + "';")
+
+
+def get_contracts():
+    return ['0163929']

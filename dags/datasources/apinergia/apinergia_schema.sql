@@ -11,3 +11,9 @@ CREATE TABLE "curveregistry" (
 );
 
 CREATE INDEX ON "curveregistry" ("ts", "meter");
+
+
+
+
+create table "stg_contracts" (
+)
