@@ -88,7 +88,7 @@ def get_last_date_contract(contractid):
     connraw = BaseHook.get_connection('Rawdata').get_hook().get_conn()
     with connraw as conn:
         with conn.cursor() as curs:
-            curs.execute("select  coalesce(max(ts),'2022-06-01') as ts from curveregistry where contract='"
+            curs.execute("select  coalesce(max(ts),'2022-06-01')::date as ts from curveregistry where contract='"
                          + contractid + "';")
             results = curs.fetchall()
             return results[0][0]
