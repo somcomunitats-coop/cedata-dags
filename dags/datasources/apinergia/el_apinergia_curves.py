@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import sys
 import logging
-import traceback
-import argparse
 import psycopg2
 import datetime
 from pathlib import Path
@@ -26,9 +23,9 @@ def config():
     return Apinergia(base_url, username, password)
 
 
-def insert_contract_meter(conraw, contractId, meter):
+def insert_contract_meter(conraw, contractid, meter):
     insert_query = "insert into contract(id, id_api) values(%s, %s)  on conflict do nothing"
-    conraw.execute(insert_query, (contractId, meter))
+    conraw.execute(insert_query, (contractid, meter))
 
 
 def insert_curves(conraw, curves):
@@ -88,12 +85,13 @@ def download_curves(contractid, cch_type, start_date, end_date):
 
 
 def get_last_date_contract(contractid):
-    api = config()
     connraw = BaseHook.get_connection('Rawdata').get_hook().get_conn()
     with connraw as conn:
         with conn.cursor() as curs:
-            return curs.execute("select  coalesce(max(ts),'2022-06-01') as ts from curveregistry where contract='"
-                                + contractid + "';")
+            curs.execute("select  coalesce(max(ts),'2022-06-01') as ts from curveregistry where contract='"
+                         + contractid + "';")
+            results = curs.fetchall()
+            return results[0][0]
 
 
 def get_contracts():
