@@ -1,7 +1,7 @@
 -- https://dbdiagram.io/d/61a75a848c901501c0db398a
 
-CREATE TABLE "curveregistry" (
-  "ts" timestamp,
+CREATE TABLE if not exists "curveregistry" (
+  "ts" timestamp not null,
   "meter" varchar,
   "contract" varchar,
   "input_active_energy_kwh" bigint,
@@ -10,10 +10,7 @@ CREATE TABLE "curveregistry" (
   "updated_at" timestamp
 );
 
-CREATE INDEX ON "curveregistry" ("ts", "meter");
+CREATE index if not exists ix ON "curveregistry" ("ts", "meter");
 
 
-
-
-create table "stg_contracts" (
-)
+SELECT create_hypertable('curveregistry', 'ts', if_not_exists => TRUE);

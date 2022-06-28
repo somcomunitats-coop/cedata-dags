@@ -114,9 +114,9 @@ class Apinergia:
         return df_column
 
     def cch_json_to_dataframe(self, results, cch_type, from_date, to_date):
-        columns = ('contractId','meteringPointId') + tuple(results[0]['measurements'].keys())
+        columns = ('contractId', 'meteringPointId') + tuple(results[0]['measurements'].keys())
 
-        llista_measurements = [(r['contractId'],r['meteringPointId'],*tuple(r['measurements'].values())) for r in results]
+        llista_measurements = [(r['contractId'], r['meteringPointId'],*tuple(r['measurements'].values())) for r in results]
         measurements = pd.DataFrame(llista_measurements, columns = columns)
 
         # TODO remove this workaround once backend is patched and uncomment the original line below
@@ -153,8 +153,8 @@ class Apinergia:
         measurements = measurements\
             .add_prefix(cch_type + '_')\
             .rename(columns={
-                cch_type + '_date':'date',
-                cch_type + '_contractId':'contractId'
+                cch_type + '_date': 'date',
+                cch_type + '_contractId': 'contractId'
                 }
             )
 
