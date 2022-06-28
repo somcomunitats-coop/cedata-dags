@@ -64,10 +64,12 @@ def insert_curves(conraw, curves):
     return inserted_registries
 
 
-def db_init(conraw):
-    query = Path('datasources/apinergia/apinergia_schema.sql').read_text(encoding='utf8')
-    result = conraw.execute(query)
-    return result
+def db_init():
+    query = Path('/opt/airflow/dags/datasources/apinergia/apinergia_schema.sql').read_text(encoding='utf8')
+    connraw = BaseHook.get_connection('Rawdata').get_hook().get_conn()
+    with connraw as conn:
+        with conn.cursor() as curs:
+            curs.execute(query)
 
 
 def el_curves(conraw, api, contractid, cch_type, start_date, end_date):

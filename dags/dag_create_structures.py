@@ -12,7 +12,7 @@ def create_structures():
     return True
 
 
-with DAG("dag_create_structures", start_date=datetime(2022, 1, 1), schedule_interval="@daily", catchup=False) as dag:
+with DAG("dag_create_structures", start_date=datetime(2022, 1, 1), schedule_interval=None, catchup=False) as dag:
     somenergia_curve_download = PythonOperator(
         task_id="create_structures",
         python_callable=create_structures
