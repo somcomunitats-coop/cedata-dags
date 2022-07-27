@@ -1,4 +1,4 @@
-from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery
+from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery, querytovalue
 from airflow.hooks.base import BaseHook
 
 
@@ -17,4 +17,32 @@ def connecta_sentilo():
     connraw = BaseHook.get_connection('Sentilo').get_hook().get_sqlalchemy_engine()
     df = querytodataframe('select count(*) as a from sentilo_observations;', ['a'], connraw)
     dataframetotable(table='test_desti', bbdd=conndwh, dataframe=df)
+    return 'ok'
+
+
+def curves_raw_to_dwh():
+    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
+    connraw = BaseHook.get_connection('Rawdata').get_hook().get_sqlalchemy_engine()
+    # Agafar última data d'insert a dwh
+    max_updated_at = querytovalue("select coalesce(max(updated_at),'20220401') as updated_at from ODS_curveregistry"
+                                  , conndwh)
+    # agafar les dades de rawdata des d'aquella data
+    df = querytodataframe("select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at"
+                          ", updated_at as a from curveregistry where updated_at>='"+max_updated_at + "';"
+                          , ['ts', 'meter', 'contract', 'input_active_energy_kwh', 'output_active_energy_kwh'
+                              , 'created_at', 'updated_at'], connraw)
+    # portar les dades a STG
+    dataframetotable(table='STG_curveregistry', bbdd=conndwh, dataframe=df)
+    # Esborrar per timestamp, meter, contract
+    executequery('delete from ods_curveregistry '
+                 'where exists (select * '
+                 'from stg_curveregistry s '
+                 'where s.ts = ods_curveregistry.ts '
+                 'and s.meter = ods_curveregistry.meter '
+                 'and s.contract = ods_curveregistry.contract '
+                 ');', conndwh)
+    # Inserir dades
+    executequery('insert into ods_curveregistry '
+                 'select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at, updated_at'
+                 ' from stg_curveregistry; ', conndwh)
     return 'ok'
