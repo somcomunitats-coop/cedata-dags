@@ -1,6 +1,7 @@
 import psycopg2
 import pandas as pd
 from sqlalchemy import create_engine
+import logging
 
 
 def getconnectionparams(host, port,  user, password, dbname):
@@ -19,7 +20,8 @@ def querytodataframe(query, columns, conn):
 
 def querytovalue(query, conn):
     rs = conn.execute(query)
-    return rs[0][0]
+    for row in rs:
+        return row[0]
 
 
 def dataframetotable(table, bbdd, dataframe, schema="public"):

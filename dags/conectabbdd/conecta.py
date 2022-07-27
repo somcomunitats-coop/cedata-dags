@@ -28,11 +28,12 @@ def curves_raw_to_dwh():
                                   , conndwh)
     # agafar les dades de rawdata des d'aquella data
     df = querytodataframe("select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at"
-                          ", updated_at as a from curveregistry where updated_at>='"+max_updated_at + "';"
+                          ", updated_at as a from curveregistry where updated_at>='"
+                          + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
                           , ['ts', 'meter', 'contract', 'input_active_energy_kwh', 'output_active_energy_kwh'
                               , 'created_at', 'updated_at'], connraw)
     # portar les dades a STG
-    dataframetotable(table='STG_curveregistry', bbdd=conndwh, dataframe=df)
+    dataframetotable(table='stg_curveregistry', bbdd=conndwh, dataframe=df)
     # Esborrar per timestamp, meter, contract
     executequery('delete from ods_curveregistry '
                  'where exists (select * '
