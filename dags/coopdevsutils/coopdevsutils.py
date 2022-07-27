@@ -18,10 +18,8 @@ def querytodataframe(query, columns, conn):
 
 
 def querytovalue(query, conn):
-    cursor = conn.cursor()
-    cursor.execute(query)
-    cursor.close()
-    return cursor.fetchone()[0]
+    rs = conn.execute(query)
+    return rs[0][0]
 
 
 def dataframetotable(table, bbdd, dataframe, schema="public"):
