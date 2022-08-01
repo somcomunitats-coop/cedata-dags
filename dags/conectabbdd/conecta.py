@@ -27,6 +27,8 @@ def curves_raw_to_dwh():
     max_updated_at = querytovalue("select coalesce(max(updated_at),'20220401') as updated_at from ODS_curveregistry"
                                   , conndwh)
     # agafar les dades de rawdata des d'aquella data
+    executequery('delete from stg_curveregistry ;', conndwh)
+
     df = querytodataframe("select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at"
                           ", updated_at as updated_at from curveregistry where updated_at>='"
                           + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
