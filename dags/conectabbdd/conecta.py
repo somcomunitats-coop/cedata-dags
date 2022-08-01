@@ -28,7 +28,7 @@ def curves_raw_to_dwh():
                                   , conndwh)
     # agafar les dades de rawdata des d'aquella data
     df = querytodataframe("select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at"
-                          ", updated_at as a from curveregistry where updated_at>='"
+                          ", updated_at as updated_at from curveregistry where updated_at>='"
                           + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
                           , ['ts', 'meter', 'contract', 'input_active_energy_kwh', 'output_active_energy_kwh'
                               , 'created_at', 'updated_at'], connraw)
