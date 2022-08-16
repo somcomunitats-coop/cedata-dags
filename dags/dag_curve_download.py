@@ -15,9 +15,9 @@ def somenergia_curve_download():
     contracts = el_apinergia_curves.get_contracts()
     for con in contracts:
         # per cada contracte trobar l'última data baixada
-        last_date = el_apinergia_curves.get_last_date_contract(con)
+        last_date = el_apinergia_curves.get_last_date_contract(con[0])
         # crida a baixar dades
-        el_apinergia_curves.download_curves(con, 'tg_cchval', last_date, date.today())
+        el_apinergia_curves.download_curves(con[0], 'tg_cchval', last_date, date.today())
     # càlcul agregats (pot ser en un altre pas del dag)
     return True
 
@@ -27,7 +27,16 @@ def move_data_to_dwh():
     return True
 
 
+def get_erp_contracts():
+    el_apinergia_curves.refresh_contracts()
+
+
 with DAG("dag_curve_download", start_date=datetime(2022, 1, 1), schedule_interval="@daily", catchup=False) as dag:
+    get_erp_contracts = PythonOperator(
+        task_id="get_erp_contracts",
+        python_callable=get_erp_contracts
+    )
+
     somenergia_curve_download = PythonOperator(
         task_id="somenergia_curve_download",
         python_callable=somenergia_curve_download
@@ -45,5 +54,5 @@ with DAG("dag_curve_download", start_date=datetime(2022, 1, 1), schedule_interva
         dag=dag
     )
 
-    somenergia_curve_download >> move_data_to_dwh >> dbt_run
+    get_erp_contracts >> somenergia_curve_download >> move_data_to_dwh >> dbt_run
 

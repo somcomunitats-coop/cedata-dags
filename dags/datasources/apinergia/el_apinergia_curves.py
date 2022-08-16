@@ -12,6 +12,8 @@ from airflow.models import Variable
 
 from somenergia_apinergia.apinergia import Apinergia, Authentication
 
+from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery, querytovalue
+
 
 def config():
     username = Variable.get('APINERGIA_USERNAME')
@@ -97,4 +99,41 @@ def get_last_date_contract(contractid):
 
 
 def get_contracts():
-    return ['0163929']
+    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_conn()
+    with conndwh as conn:
+        with conn.cursor() as curs:
+            curs.execute("select contract, provider from ods_contract_community where date_end='9999-12-31';")
+            results = curs.fetchall()
+            return results
+
+
+def refresh_contracts():
+    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
+    connerp = BaseHook.get_connection('ERP').get_hook().get_sqlalchemy_engine()
+    # llegir de la taula de l'ERP (pot ser una api, ara per BBDD)
+    df = querytodataframe("select contract,community,provider from ERP_contract_community;"
+                          , ['contract', 'community', 'provider'], connerp)
+    # truncate de la taula stg
+    executequery('delete from stg_contract_community ;', conndwh)
+    # inserir les dades a la taula stg
+    dataframetotable(table='stg_contract_community', bbdd=conndwh, dataframe=df)
+    # caducar a ods no existents a la taula stg
+    executequery("update ods_contract_community set date_end=CURRENT_DATE-1 "
+                 "where not exists (select * "
+                 "  from stg_contract_community s "
+                 "  where ods_contract_community.contract=s.contract  "
+                 "	  and ods_contract_community.community = s.community "
+                 "	  and ods_contract_community.provider = s.provider "
+                 "  )"
+                 "and ods_contract_community.date_end = '9999-12-31';", conndwh)
+    # inserir a ods existents taula stg no existents a ods
+    executequery("insert into ods_contract_community "
+                 "select contract, community, provider, current_date, '9999-12-31' "
+                 "from stg_contract_community s"
+                 "where not exists (select * "
+                 "from ods_contract_community " 
+                 "where ods_contract_community.contract=s.contract "
+                 "	and ods_contract_community.community = s.community "
+                 "	and ods_contract_community.provider = s.provider "
+                 ")", conndwh)
+
