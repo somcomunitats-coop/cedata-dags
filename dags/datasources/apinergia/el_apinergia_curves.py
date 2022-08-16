@@ -129,7 +129,7 @@ def refresh_contracts():
     # inserir a ods existents taula stg no existents a ods
     executequery("insert into ods_contract_community "
                  "select contract, community, provider, current_date, '9999-12-31' "
-                 "from stg_contract_community s"
+                 "from stg_contract_community s "
                  "where not exists (select * "
                  "from ods_contract_community " 
                  "where ods_contract_community.contract=s.contract "
