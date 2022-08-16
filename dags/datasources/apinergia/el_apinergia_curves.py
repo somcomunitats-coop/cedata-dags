@@ -109,8 +109,8 @@ def get_contracts():
 
 def refresh_contracts():
     conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
-    connerp = BaseHook.get_connection('ERP').get_hook().get_sqlalchemy_engine()
     # llegir de la taula de l'ERP (pot ser una api, ara per BBDD)
+    connerp = BaseHook.get_connection('ERP').get_hook().get_sqlalchemy_engine()
     df = querytodataframe("select contract,community,provider from ERP_contract_community;"
                           , ['contract', 'community', 'provider'], connerp)
     # truncate de la taula stg
