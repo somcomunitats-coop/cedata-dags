@@ -31,7 +31,7 @@ def get_erp_contracts():
     el_apinergia_curves.refresh_contracts()
 
 
-with DAG("dag_curve_download", start_date=datetime(2022, 1, 1), schedule_interval="@daily", catchup=False) as dag:
+with DAG("dag_curve_download", start_date=datetime(2022, 1, 1), schedule_interval="0 4 * * *", catchup=False) as dag:
     get_erp_contracts = PythonOperator(
         task_id="get_erp_contracts",
         python_callable=get_erp_contracts
