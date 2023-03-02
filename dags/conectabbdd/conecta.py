@@ -1,3 +1,5 @@
+import logging
+
 from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery, querytovalue
 from airflow.hooks.base import BaseHook
 
@@ -68,6 +70,9 @@ def curves_dl_to_dwh():
                           + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
                           , ['ts', 'cups', 'input_active_energy_kwh', 'output_active_energy_kwh', 'source'
                               , 'created_at', 'updated_at'], connraw)
+    logging.info("select ts, cups, input_active_energy_kwh, output_active_energy_kwh, source, created_at"
+                          ", updated_at as updated_at from dl_generated_energy where updated_at>='"
+                          + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';")
     # portar les dades a STG
     dataframetotable(table='stg_generated_energy', bbdd=conndwh, dataframe=df)
     # Esborrar per timestamp, meter, contract
@@ -95,7 +100,7 @@ def curves_dl_to_dwh():
                           , ['ts', 'cups', 'input_active_energy_kwh', 'output_active_energy_kwh', 'source'
                               , 'created_at', 'updated_at'], connraw)
     # portar les dades a STG
-    dataframetotable(table='stg_generated_energy', bbdd=conndwh, dataframe=df)
+    dataframetotable(table='stg_consumed_energy', bbdd=conndwh, dataframe=df)
     # Esborrar per timestamp, meter, contract
     executequery('delete from ods_consumed_energy '
                  'where exists (select * '
