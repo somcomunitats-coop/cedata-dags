@@ -116,8 +116,8 @@ def load_incremental_data_pk_date():
     
     -- afegir els nous
     insert into external.hist_odoo_res_company_res_partner_rel
-    select res_partner_id, res_company_id, current_Date, '99991231'::date as dt_end, 
-        current_timestamp as ts_create, current_timestamp as ts_update 
+    select res_partner_id, res_company_id, current_Date, '99991231'::date as dt_end, true
+        , current_timestamp as ts_create, current_timestamp as ts_update 
     from  external.hist_stg_odoo_res_company_res_partner_rel s
     where exists (select *
         from external.hist_odoo_res_company_res_partner_rel h
