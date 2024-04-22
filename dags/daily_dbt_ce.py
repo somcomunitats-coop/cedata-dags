@@ -5,7 +5,7 @@ from airflow.models import Variable
 from datetime import datetime, timedelta
 
 
-with DAG("DAG_daily_dbt_ce", start_date=datetime(2021, 1, 1), schedule_interval="30 0 * * *", catchup=False) as dag:
+with DAG("DAG_daily_dbt_ce", start_date=datetime(2021, 1, 1), schedule_interval="30 4 * * *", catchup=False) as dag:
     dbt_run = BashOperator(
         task_id='dbt_run',
         bash_command='dbt run --project-dir=/home/airflow/dbt/daily',
