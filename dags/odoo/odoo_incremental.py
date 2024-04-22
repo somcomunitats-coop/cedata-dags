@@ -57,7 +57,7 @@ def load_incremental_data_pk_date():
 
 
         qry = "insert into external.hist_stg_" + tab + " " \
-            " select * , current_timestamp as ts_create, current_timestamp as ts_update " \
+            " select * " \
             " from " + tab + " where " + incrementaldate + ">=current_date - interval '30 days'; \r\n" \
             " delete from external.hist_stg_" + tab + " " \
             " where exists (" \
