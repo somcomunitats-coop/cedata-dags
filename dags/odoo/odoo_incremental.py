@@ -110,7 +110,7 @@ def load_incremental_data_pk_date():
     where not exists (select *
         from external.hist_stg_odoo_res_company_res_partner_rel s
         where s.res_partner_id=hist_odoo_res_company_res_partner_rel.res_partner_id
-            and s.res_company_id=res_company_id.res_partner_id
+            and s.res_company_id=hist_odoo_res_company_res_partner_rel.res_company_id
     )
     and last;
     
@@ -122,7 +122,7 @@ def load_incremental_data_pk_date():
     where exists (select *
         from external.hist_odoo_res_company_res_partner_rel h
         where s.res_partner_id=hist_odoo_res_company_res_partner_rel.res_partner_id
-            and s.res_company_id=res_company_id.res_partner_id
+            and s.res_company_id=hist_odoo_res_company_res_partner_rel.res_company_id
             and h.last
     );
 
