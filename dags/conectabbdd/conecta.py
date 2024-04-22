@@ -1,118 +1,74 @@
-import logging
-
-from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery, querytovalue
+from coopdevsutils.coopdevsutils import querytodataframe, dataframetotable, executequery, getalchemyconnection
 from airflow.hooks.base import BaseHook
+from airflow.models import Variable
+import requests
 
 
-def connecta():
-    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
-    connraw = BaseHook.get_connection('Rawdata').get_hook().get_sqlalchemy_engine()
-    query = "insert into test_inici (b) values(round(random()*10) )"
-    executequery(query, connraw)
-    df = querytodataframe('select sum(b) as a from test_inici', ['a'], connraw)
-    dataframetotable(table='test_desti', bbdd=conndwh, dataframe=df)
-    return 'ok'
+def getmailerlitedata():
+    conndwh = BaseHook.get_connection('DWH').get_hook().get_sqlalchemy_engine()
+    query = "create table if not exists external.mailerlite_subscribers(data date primary key, subscribers int);"
+    executequery(query, conndwh)
+
+    query = "create table if not exists external.aux_mailerlite_subscribers_detail(it jsonb);"
+    executequery(query, conndwh)
+
+    query = "create table if not exists external.mailerlite_subscribers_detail(email varchar(500)," +\
+            "createddate timestamp);"
+    executequery(query, conndwh)
+
+    query = "delete from external.aux_mailerlite_subscribers_detail"
+    executequery(query, conndwh)
+
+    offset = 0
+    elements = 0
+    currentelements = 5000
+
+    headers = {
+        "Accept": "application/json",
+        "X-MailerLite-ApiDocs": "true",
+        "X-MailerLite-ApiKey": Variable.get("X-MailerLite-ApiKey")
+    }
+
+    while currentelements == 5000:
+        url = "https://api.mailerlite.com/api/v2/subscribers?offset=" + str(offset) + "&limit=5000&type=active"
+        response = requests.get(url, headers=headers)
+        query = "insert into external.aux_mailerlite_subscribers_detail values('" + response.text.replace("'", "''") \
+                + "');"
+        executequery(query, conndwh)
+        currentelements = len(response.json())
+        elements += currentelements
+        offset += 5000
+
+    query = "delete from external.mailerlite_subscribers where data=CURRENT_DATE;"
+    executequery(query, conndwh)
+    query = "insert into external.mailerlite_subscribers values(CURRENT_DATE, " + str(elements) + ");"
+    executequery(query, conndwh)
+
+    query = "delete from external.mailerlite_subscribers_detail;"
+    executequery(query, conndwh)
+
+    query = "insert into external.mailerlite_subscribers_detail	" +\
+        "select mail, datacrecio::timestamp " +\
+        "from ( " +\
+        "select json_array_elements(i.it::json) ->> 'email' as mail " +\
+        ",json_array_elements(i.it::json) ->> 'date_created' as datacrecio " +\
+        "from external.aux_mailerlite_subscribers_detail i " +\
+        ") a;"
+    executequery(query, conndwh)
 
 
-def connecta_sentilo():
-    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
-    connraw = BaseHook.get_connection('Sentilo').get_hook().get_sqlalchemy_engine()
-    df = querytodataframe('select count(*) as a from sentilo_observations;', ['a'], connraw)
-    dataframetotable(table='test_desti', bbdd=conndwh, dataframe=df)
-    return 'ok'
-
-
-def curves_raw_to_dwh():
-    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
-    connraw = BaseHook.get_connection('Rawdata').get_hook().get_sqlalchemy_engine()
-    # Agafar última data d'insert a dwh
-    max_updated_at = querytovalue("select coalesce(max(updated_at),'20220401') as updated_at from ODS_curveregistry"
-                                  , conndwh)
-    # agafar les dades de rawdata des d'aquella data
-    executequery('delete from stg_curveregistry ;', conndwh)
-
-    df = querytodataframe("select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at"
-                          ", updated_at as updated_at from curveregistry where updated_at>='"
-                          + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
-                          , ['ts', 'meter', 'contract', 'input_active_energy_kwh', 'output_active_energy_kwh'
-                              , 'created_at', 'updated_at'], connraw)
-    # portar les dades a STG
-    dataframetotable(table='stg_curveregistry', bbdd=conndwh, dataframe=df)
-    # Esborrar per timestamp, meter, contract
-    executequery('delete from ods_curveregistry '
-                 'where exists (select * '
-                 'from stg_curveregistry s '
-                 'where s.ts = ods_curveregistry.ts '
-                 'and s.meter = ods_curveregistry.meter '
-                 'and s.contract = ods_curveregistry.contract '
-                 ');', conndwh)
-    # Inserir dades
-    executequery('insert into ods_curveregistry '
-                 'select ts, meter, contract, input_active_energy_kwh, output_active_energy_kwh, created_at, updated_at'
-                 ' from stg_curveregistry; ', conndwh)
-    return 'ok'
-
-
-
-def curves_dl_to_dwh():
-    conndwh = BaseHook.get_connection('Datawarehouse').get_hook().get_sqlalchemy_engine()
-    connraw = BaseHook.get_connection('Rawdata').get_hook().get_sqlalchemy_engine()
-
-    ## GENERATED
-    # Agafar última data d'insert a dwh
-    max_updated_at = querytovalue("select coalesce(max(updated_at),'20220401') as updated_at from ods_generated_energy"
-                                  , conndwh)
-    # agafar les dades de rawdata des d'aquella data
-    executequery('delete from stg_generated_energy ;', conndwh)
-
-    df = querytodataframe("select ts, cups, input_active_energy_kwh, output_active_energy_kwh, source, created_at"
-                          ", updated_at as updated_at from dl_generated_energy where updated_at>='"
-                          + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
-                          , ['ts', 'cups', 'input_active_energy_kwh', 'output_active_energy_kwh', 'source'
-                              , 'created_at', 'updated_at'], connraw)
-    logging.info("select ts, cups, input_active_energy_kwh, output_active_energy_kwh, source, created_at"
-                          ", updated_at as updated_at from dl_generated_energy where updated_at>='"
-                          + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';")
-    # portar les dades a STG
-    dataframetotable(table='stg_generated_energy', bbdd=conndwh, dataframe=df)
-    # Esborrar per timestamp, meter, contract
-    executequery('delete from ods_generated_energy '
-                 'where exists (select * '
-                 'from stg_generated_energy s '
-                 'where s.ts = ods_generated_energy.ts '
-                 'and s.cups = ods_generated_energy.cups '
-                 ');', conndwh)
-    # Inserir dades
-    executequery('insert into ods_generated_energy '
-                 'select ts, cups, input_active_energy_kwh, output_active_energy_kwh, source, created_at, updated_at'
-                 ' from stg_generated_energy; ', conndwh)
-
-    ## CONSUMED
-    # Agafar última data d'insert a dwh
-    max_updated_at = querytovalue("select coalesce(max(updated_at),'20220401') as updated_at from ods_consumed_energy"
-                                  , conndwh)
-    # agafar les dades de rawdata des d'aquella data
-    executequery('delete from stg_consumed_energy ;', conndwh)
-
-    df = querytodataframe("select ts, cups, input_active_energy_kwh, output_active_energy_kwh, source, created_at"
-                          ", updated_at as updated_at from dl_consumed_energy where updated_at>='"
-                          + max_updated_at.strftime("%Y%m%d %H:%M:%S") + "';"
-                          , ['ts', 'cups', 'input_active_energy_kwh', 'output_active_energy_kwh', 'source'
-                              , 'created_at', 'updated_at'], connraw)
-    # portar les dades a STG
-    dataframetotable(table='stg_consumed_energy', bbdd=conndwh, dataframe=df)
-    # Esborrar per timestamp, meter, contract
-    executequery('delete from ods_consumed_energy '
-                 'where exists (select * '
-                 'from stg_consumed_energy s '
-                 'where s.ts = ods_consumed_energy.ts '
-                 'and s.cups = ods_consumed_energy.cups '
-                 ');', conndwh)
-    # Inserir dades
-    executequery('insert into ods_consumed_energy '
-                 'select ts, cups, input_active_energy_kwh, output_active_energy_kwh, source, created_at, updated_at'
-                 ' from stg_consumed_energy; ', conndwh)
-
-
-
-    return 'ok'
+def getinstagram():
+    conndwh = BaseHook.get_connection('DWH').get_hook().get_sqlalchemy_engine()
+    query = "create table if not exists external.instagram_followers(data date primary key, followers int);"
+    executequery(query, conndwh)
+    elements = 0
+    headers = {
+        "Accept": "application/json",
+    }
+    url = "https://www.instagram.com/lazona_mercat/?__a=1"
+    response = requests.get(url, headers=headers)
+    elements = response.json()['graphql']['user']['edge_followed_by']['count']
+    query = "delete from external.instagram_followers where data=CURRENT_DATE;"
+    executequery(query, conndwh)
+    query = "insert into external.instagram_followers values(CURRENT_DATE, " + str(elements) + ");"
+    executequery(query, conndwh)
