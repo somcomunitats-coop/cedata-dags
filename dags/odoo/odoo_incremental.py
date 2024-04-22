@@ -121,8 +121,8 @@ def load_incremental_data_pk_date():
     from  external.hist_stg_odoo_res_company_res_partner_rel s
     where exists (select *
         from external.hist_odoo_res_company_res_partner_rel h
-        where s.res_partner_id=hist_odoo_res_company_res_partner_rel.res_partner_id
-            and s.res_company_id=hist_odoo_res_company_res_partner_rel.res_company_id
+        where s.res_partner_id=h.res_partner_id
+            and s.res_company_id=h.res_company_id
             and h.last
     );
 
