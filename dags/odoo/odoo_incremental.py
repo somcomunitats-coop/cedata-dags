@@ -119,7 +119,7 @@ def load_incremental_data_pk_date():
     select res_partner_id, res_company_id, current_Date, '99991231'::date as dt_end, true
         , current_timestamp as ts_create, current_timestamp as ts_update 
     from  external.hist_stg_odoo_res_company_res_partner_rel s
-    where exists (select *
+    where not exists (select *
         from external.hist_odoo_res_company_res_partner_rel h
         where s.res_partner_id=h.res_partner_id
             and s.res_company_id=h.res_company_id
