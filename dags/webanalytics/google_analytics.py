@@ -48,7 +48,7 @@ def load_ga_daily_data():
         property=f"properties/{property_id}",
         dimensions=[Dimension(name='date'), Dimension(name='dateHour'), Dimension(name='deviceCategory'), Dimension(name='hostName'),
                     Dimension(name='linkUrl'), Dimension(name='pageLocation'), Dimension(name='pagePath'),
-                    Dimension(name='pageTitle'), Dimension(name='region'), Dimension(name='city'),
+                    Dimension(name='pageTitle'), Dimension(name='city'),
                     ],
         metrics=[Metric(name="activeUsers"), Metric(name="sessions"), Metric(name="engagedSessions")],
         date_ranges=[DateRange(start_date=datetime.strftime(datetime.now() - timedelta(3), '%Y-%m-%d'), end_date="today")]
@@ -67,7 +67,7 @@ def load_ga_daily_data():
     
     insert into external.ga_visits
     select *
-    fro external.stg_ga_visits;     
+    from external.stg_ga_visits;     
     """
 
     executequery(qry, conndwh)
