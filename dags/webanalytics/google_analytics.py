@@ -47,7 +47,7 @@ def load_ga_daily_data():
     request = RunReportRequest(
         property=f"properties/{property_id}",
         dimensions=[Dimension(name='date'), Dimension(name='dateHour'), Dimension(name='deviceCategory'), Dimension(name='hostName'),
-                    Dimension(name='linkUrl'), Dimension(name='pageLocation'), Dimension(name='pagePath'),
+                    Dimension(name='linkUrl'), Dimension(name='pagePath'),
                     Dimension(name='pageTitle'), Dimension(name='city'),
                     ],
         metrics=[Metric(name="activeUsers"), Metric(name="sessions"), Metric(name="engagedSessions")],

@@ -88,7 +88,8 @@ def load_incremental_data_pk_date():
             " where not exists (select * " \
             " from "+ tab +" s " \
             " where s.id=hist_"+ tab +".id" \
-            " ) and last"
+            " ) and last; " \
+            " commit; "
         print(qry)
 
         executequery(qry, conndwh)
@@ -126,6 +127,7 @@ def load_incremental_data_pk_date():
             and h.last
     );
 
+    commit;
     """
 
     executequery(qry, conndwh)
