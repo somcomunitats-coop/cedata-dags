@@ -54,7 +54,7 @@ def download_helpscout():
             data['folderId'].append(x['folderId'])
             data['status'].append(x['status'])
             data['state'].append(x['state'])
-            data['subject'].append(x['subject'])
+            data['subject'].append(x['subject'] if 'subject' in x else "")
             data['mailboxId'].append(x['mailboxId'])
             data['createdById'].append(x['createdBy']['id'])
             data['createdByType'].append(x['createdBy']['type'])
@@ -95,4 +95,4 @@ def download_helpscout():
     """
     executequery(qry, conndwh)
 
-    # TODO baixar mailboxes 
+    # TODO baixar mailboxes
