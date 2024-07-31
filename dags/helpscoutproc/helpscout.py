@@ -39,7 +39,7 @@ def download_helpscout():
     while page == 1 or response['page']['totalPages'] > response['page']['number']:
 
         url = 'https://api.helpscout.net/v2/conversations/?status=all&page=' + str(
-            page) + '&query=(modifiedAt:[NOW-10HOUR TO *])'
+            page) + '&query=(modifiedAt:[NOW-24HOUR TO *])'
         response = requests.get(url, headers=headers).json()
         for x in response['_embedded']['conversations']:
             # Threads
