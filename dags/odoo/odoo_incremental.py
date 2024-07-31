@@ -95,17 +95,14 @@ def load_incremental_data_pk_date():
         executequery(qry, conndwh)
 
     # queries manuals
-    qry = """
-    ------------------------------------------
-    ---- odoo_res_company_res_partner_rel ----
-    ------------------------------------------
 
+    # odoo_res_company_res_partner_rel
+    qry = """
     truncate table external.hist_stg_odoo_res_company_res_partner_rel;
     insert into external.hist_stg_odoo_res_company_res_partner_rel
     select res_partner_id, res_company_id
     from odoo_res_company_res_partner_rel tc ;
     
-    -- caducar els ja no existents
     update external.hist_odoo_res_company_res_partner_rel set dt_end=current_Date, last=false
         , ts_update=current_timestamp
     where not exists (select *
@@ -115,7 +112,6 @@ def load_incremental_data_pk_date():
     )
     and last;
     
-    -- afegir els nous
     insert into external.hist_odoo_res_company_res_partner_rel
     select res_partner_id, res_company_id, current_Date, '99991231'::date as dt_end, true
         , current_timestamp as ts_create, current_timestamp as ts_update 
