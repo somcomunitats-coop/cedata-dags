@@ -77,7 +77,7 @@ def download_helpscout():
     dataframetotable("stg_helpscout", conndwh, df, schema="external", if_exists="replace")
 
     qry = """
-        create table if not exists external.stg_helpscout as 
+        create table if not exists external.helpscout as 
         select *
         from external.stg_helpscout sh;
         
