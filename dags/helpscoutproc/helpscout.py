@@ -73,7 +73,7 @@ def download_helpscout():
     df = pd.DataFrame(data)
     print(df)
 
-    conndwh = BaseHook.get_connection('DWH').get_hook().get_sqlalchemy_engine()
+    conndwh = BaseHook.get_connection('DWH_CE').get_hook().get_sqlalchemy_engine()
     dataframetotable("stg_helpscout", conndwh, df, schema="external", if_exists="replace")
 
     # TODO baixar mailboxes
