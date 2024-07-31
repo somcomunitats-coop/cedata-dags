@@ -66,7 +66,7 @@ def download_helpscout():
             data['closedByUserFirst'].append(x['closedByUser']['first'])
             data['closedByUserLast'].append(x['closedByUser']['last'])
             data['userUpdatedAt'].append(x['userUpdatedAt'])
-            data['customerWaitingSinceTime'].append(x['customerWaitingSince']['time'])
+            data['customerWaitingSinceTime'].append(x['customerWaitingSince']['time'] if 'time' in x['customerWaitingSince'] else "" )
             data['tags'].append(str(x['tags']))
         page = page + 1
 
