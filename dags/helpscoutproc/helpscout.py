@@ -76,4 +76,23 @@ def download_helpscout():
     conndwh = BaseHook.get_connection('DWH_CE').get_hook().get_sqlalchemy_engine()
     dataframetotable("stg_helpscout", conndwh, df, schema="external", if_exists="replace")
 
+    qry = """
+        create table if not exists external.stg_helpscout as 
+        select *
+        from external.stg_helpscout sh;
+        
+        
+        delete from external.helpscout
+        where exists (
+            select * 
+            from external.stg_helpscout h
+            where h.id=helpscout.id
+        );
+        
+        insert into external.helpscout
+        select * 
+        from external.stg_helpscout h;
+    """
+    executequery(qry, conndwh)
+
     # TODO baixar mailboxes
