@@ -61,7 +61,7 @@ def download_helpscout():
                     datathread['id'].append(x['id'])
                     datathread['number'].append(y['id'])
                     datathread['type'].append(y['type'])
-                    datathread['status'].append(y['status'])
+                    datathread['status'].append(y['status'] if 'status' in y else "")
                     datathread['state'].append(y['state'] if 'state' in y else "")
                     datathread['source_type'].append(y['source']['type'])
                     datathread['source_via'].append(y['source']['via'])
