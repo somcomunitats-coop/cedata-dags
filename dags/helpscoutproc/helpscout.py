@@ -107,7 +107,7 @@ def download_helpscout():
                     where exists (
                         select * 
                         from external.stg_helpscout_thread h
-                        where h.id=helpscout.id
+                        where h.id=helpscout_thread.id
                     );
 
                     insert into external.helpscout_thread
