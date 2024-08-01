@@ -54,7 +54,7 @@ def download_helpscout():
                 , 'createdAt': []
                           }
             pagethread = 1
-            urlthread = 'https://api.helpscout.net/v2/conversations/' + str(x['id']) + '/threads'
+            urlthread = 'https://api.helpscout.net/v2/conversations/' + str(x['id']) + '/threads?status=all&page=' + str(pagethread)
             responsethread = requests.get(urlthread, headers=headers).json()
             while pagethread == 1 or responsethread['page']['totalPages'] > responsethread['page']['number']:
                 for y in responsethread['_embedded']['threads']:
