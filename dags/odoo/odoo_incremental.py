@@ -23,7 +23,7 @@ def load_incremental_data_pk_date():
         qrycol = """
             select table_name, table_schema, ordinal_position, column_name, column_type, is_time_reference, is_pk
             from external.auto_incremental_tables
-            where table_name='"""+rowtbl["table_name"]+"'"
+            where table_name='"""+rowtbl["table_name"]+"' order by table_name, ordinal_position"
 
         df = querytodataframe(qrycol, ['table_name', 'table_schema', 'ordinal_position', 'column_name', 'column_type',
                                        'is_time_reference', 'is_pk'], conndwh)
