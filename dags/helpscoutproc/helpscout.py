@@ -161,6 +161,24 @@ def download_helpscout():
         insert into external.helpscout
         select * 
         from external.stg_helpscout h;
+        
+        drop table if exists external.helpscount_master_tags;
+        create table external.helpscount_master_tags as
+        select *
+        from (
+            select *
+            ,(string_to_array(tag, ' - '))[1] as tag_lvl1
+            , coalesce((string_to_array(tag, ' - '))[2],'') as tag_lvl2
+            , coalesce((string_to_array(tag, ' - '))[3],'') as tag_lvl3 
+            from (
+                select ((jsonb_array_elements_text(replace(sh.tags,'''', '"')::jsonb))::jsonb)->>'id' as tag_id,
+                    ((jsonb_array_elements_text(replace(sh.tags,'''', '"')::jsonb))::jsonb)->>'tag' as tag,
+                    ((jsonb_array_elements_text(replace(sh.tags,'''', '"')::jsonb))::jsonb)->>'color' as tag_color,
+                     sh.id
+                from "external".helpscout sh 
+            ) a
+         ) a
+        
     """
     executequery(qry, conndwh)
 
