@@ -10,11 +10,11 @@ def calc_geography_cm_place():
 
     qry = """
         select p.id, p.lat, p.lng
-        ,case when isnumeric((string_to_Array(p.address_txt ,','))[1]) then 
+        ,trim(case when isnumeric((string_to_Array(p.address_txt ,','))[1]) then 
                 case when length((string_to_Array(p.address_txt ,','))[1])=4 then '0' else '' end || (string_to_Array(p.address_txt ,','))[1]
             when isnumeric((string_to_Array(p.address_txt ,','))[2]) then 
                 case when length((string_to_Array(p.address_txt ,','))[2])=4 then '0' else '' end || (string_to_Array(p.address_txt ,','))[2]  
-        end as cp
+        end) as cp
         from odoo_cm_place p 
         where not exists (
             select *
@@ -38,8 +38,9 @@ def calc_geography_cm_place():
             dataframetotable('geography_cm_place', conndwh, df, schema="external")
         except:
             print(geourl)
-            res = [[row["id"], None, None, None,
-                    None,  row["cp"][:5]]]
-            df = pd.DataFrame(res,
-                              columns=['id_cm_place', 'municipi', 'comarca', 'provincia', 'ccaa', 'codpostal'])
-            dataframetotable('geography_cm_place', conndwh, df, schema="external")
+            if  row["cp"] is not None:
+                res = [[row["id"], None, None, None,
+                        None,  row["cp"][:5]]]
+                df = pd.DataFrame(res,
+                                  columns=['id_cm_place', 'municipi', 'comarca', 'provincia', 'ccaa', 'codpostal'])
+                dataframetotable('geography_cm_place', conndwh, df, schema="external")
