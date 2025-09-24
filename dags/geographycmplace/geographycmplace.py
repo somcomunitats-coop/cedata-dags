@@ -27,5 +27,5 @@ def calc_geography_cm_place():
         res = [[row["id"], dgeo['muni'], None, dgeo['province'],
                 dgeo['comunidadAutonoma'], dgeo['postalCode']]]
         df = pd.DataFrame(res,
-                          columns=['id_cm_place', 'municipi', 'comparca', 'provincia', 'ccaa', 'codpostal'])
+                          columns=['id_cm_place', 'municipi', 'comarca', 'provincia', 'ccaa', 'codpostal'])
         dataframetotable('geography_cm_place', conndwh, df, schema="external")
