@@ -21,7 +21,8 @@ def calc_geography_cm_place():
 
     df = querytodataframe(qry, ["id", "lat", "lng"], conndwh)
     for index, row in df.iterrows():
-        geourl = f'https://www.cartociudad.es/geocoder/api/geocoder/reverseGeocode?lon={row["lng"]}&lat={row["lat"]}'
+        lat = row["lat"].replace(',','')
+        geourl = f'https://www.cartociudad.es/geocoder/api/geocoder/reverseGeocode?lon={row["lng"]}&lat={lat}'
         try:
             rgeo = requests.get(geourl)
             dgeo = json.loads(rgeo.text)
