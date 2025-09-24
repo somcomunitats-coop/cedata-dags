@@ -18,15 +18,14 @@ def calc_geography_cm_place():
         )
     """
 
-    res = []
+
     df = querytodataframe(qry, ["id", "lat", "lng"], conndwh)
     for index, row in df.iterrows():
         geourl = f'https://www.cartociudad.es/geocoder/api/geocoder/reverseGeocode?lon={row["lng"]}&lat={row["lat"]}'
         rgeo = requests.get(geourl)
         dgeo = json.loads(rgeo.text)
-        res.append([row["id"], dgeo['muni'], None, dgeo['province'],
-                    dgeo['comunidadAutonoma'], dgeo['postalCode']])
-
-    df = pd.DataFrame(res,
-                      columns=['id_cm_place', 'municipi', 'comparca', 'provincia', 'ccaa', 'codpostal'])
-    dataframetotable('geography_cm_place', conndwh, df, schema="external")
+        res = [[row["id"], dgeo['muni'], None, dgeo['province'],
+                dgeo['comunidadAutonoma'], dgeo['postalCode']]]
+        df = pd.DataFrame(res,
+                          columns=['id_cm_place', 'municipi', 'comparca', 'provincia', 'ccaa', 'codpostal'])
+        dataframetotable('geography_cm_place', conndwh, df, schema="external")
