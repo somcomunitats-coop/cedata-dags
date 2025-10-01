@@ -43,7 +43,6 @@ def change_users_organization():
                     # validar usuari no repetit
                     if df1.iloc[0]['cnt'] > 0:
                         print(f"Repeated user {user} or email {email}. Do nothing.")
-                        exit()
                     else:
                         try:
 
