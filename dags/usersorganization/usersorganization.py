@@ -1,6 +1,6 @@
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
-from coopdevsutils import executequery, querytodataframe
+from coopdevsutils.coopdevsutils import executequery, querytodataframe
 
 from hashlib import pbkdf2_hmac
 import binascii
