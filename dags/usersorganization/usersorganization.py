@@ -106,7 +106,7 @@ def change_users_organization():
                             qry = f"""insert into rls_filter_tables 
                                   select nextval('rls_filter_tables_id_seq'::regclass), t.id, rlsf.id 
                                   from "tables" t, row_level_security_filters rlsf 
-                                  where table_name in ('comunitats_obertes', 'geografia_comunitats', 'geografia_xinxetes', 'xinxetes') 
+                                  where table_name in ('comunitats_obertes', 'geografia_comunitats', 'geografia_xinxetes', 'xinxetes' , 'xinxetes_ubicacio') 
                                       and rlsf.name='RLS_IN_{user}';
                                 """
                             print(qry)
