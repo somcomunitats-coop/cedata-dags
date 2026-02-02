@@ -7,6 +7,15 @@ from datetime import datetime, timedelta
 
 with DAG("DAG_daily_dbt_ce", start_date=datetime(2021, 1, 1), schedule_interval="30 4 * * *", catchup=False) as dag:
     dbt_run = BashOperator(
+        task_id='dbt_snapshot',
+        bash_command='dbt snapshot --project-dir=/home/airflow/dbt/daily',
+        email_on_failure=True,
+        execution_timeout=timedelta(seconds=3600),
+        email=Variable.get("mail_zulip"),
+        dag=dag
+    )
+
+    dbt_run = BashOperator(
         task_id='dbt_run',
         bash_command='dbt run --project-dir=/home/airflow/dbt/daily',
         email_on_failure=True,
@@ -23,4 +32,4 @@ with DAG("DAG_daily_dbt_ce", start_date=datetime(2021, 1, 1), schedule_interval=
         dag=dag
     )
 
-    dbt_run >> dbt_test
+    dbt_snapshot >> dbt_run >> dbt_test
