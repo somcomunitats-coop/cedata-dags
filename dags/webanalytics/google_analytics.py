@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
-from coopdevsutils.coopdevsutils import dataframetotable, executequery, querytodataframe
+from coopdevsutils import dataframetotable, executequery, querytodataframe
 
 
 def ga4_result_to_df(resp):

@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 
 from airflow.hooks.base import BaseHook
-from coopdevsutils.coopdevsutils import dataframetotable, executequery, querytodataframe
+from coopdevsutils import dataframetotable, executequery, querytodataframe
 import json
 
 def calc_geography_cm_place():

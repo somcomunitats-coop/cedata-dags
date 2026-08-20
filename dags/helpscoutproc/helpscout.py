@@ -3,7 +3,7 @@ import pandas as pd
 
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
-from coopdevsutils.coopdevsutils import dataframetotable, executequery, querytodataframe
+from coopdevsutils import dataframetotable, executequery, querytodataframe
 
 def download_helpscout():
     conndwh = BaseHook.get_connection('DWH_CE').get_hook().get_sqlalchemy_engine()
