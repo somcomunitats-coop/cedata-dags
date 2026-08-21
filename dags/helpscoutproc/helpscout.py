@@ -95,7 +95,8 @@ def download_helpscout():
                     datathread['createdAt'].append(y['createdAt'])
                 pagethread = pagethread + 1
             dfthread = pd.DataFrame(datathread)
-            dataframetotable("stg_helpscout_thread", conndwh, dfthread, schema="external", if_exists="replace")
+            executequery("drop table if exists external.stg_helpscout_thread", conndwh)
+            dataframetotable("stg_helpscout_thread", conndwh, dfthread, schema="external")
 
             qry = """
                     create table if not exists external.helpscout_thread as 
@@ -141,8 +142,8 @@ def download_helpscout():
         page = page + 1
 
     df = pd.DataFrame(data)
-
-    dataframetotable("stg_helpscout", conndwh, df, schema="external", if_exists="replace")
+    executequery("drop table if exists external.stg_helpscout", conndwh)
+    dataframetotable("stg_helpscout", conndwh, df, schema="external")
 
     qry = """
         create table if not exists external.helpscout as 
